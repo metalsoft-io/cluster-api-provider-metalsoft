@@ -1,8 +1,6 @@
-# cluster-api-provider-metalsoft
-// TODO(user): Add simple overview of use/purpose
+# Kubernetes Cluster API Provider Metalsoft
 
-## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+Kubernetes-native declarative infrastructure for Metalsoft.
 
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
@@ -42,7 +40,6 @@ make undeploy
 ```
 
 ## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
 
 ### How it works
 This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
@@ -76,19 +73,88 @@ make manifests
 
 More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
 
-## License
+## Dev notes
 
-Copyright 2023.
+### Prerequisites
+-   git
+-   make
+-   [Go](https://go.dev/dl/)
+-   [Kubebuilder](https://github.com/kubernetes-sigs/kubebuilder/releases)
+-   [Docker](https://docs.docker.com/get-docker/)
+-   [Tilt](https://docs.tilt.dev/install.html)
+-   [Kubectl](https://kubernetes.io/docs/tasks/tools/)
+-   [Kustomize](https://github.com/kubernetes-sigs/kustomize)
+-   [kind](https://kind.sigs.k8s.io/)
+-   [clusterctl](https://github.com/kubernetes-sigs/cluster-api/releases)
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+### Getting started
 
-    http://www.apache.org/licenses/LICENSE-2.0
+- Clone this repo into ~/go/src/github.com/metalsoft-io/cluster-api-provider-metalsoft
+ ```
+mkdir -p ~/go/src/github.com/metalsoft-io
+git clone https://github.com/metalsoft-io/cluster-api-provider-metalsoft.git ~/go/src/github.com/metalsoft-io/cluster-api-provider-metalsoft
+ ```
+- Clone cluster-api repo into ~/go/src/sigs.k8s.io/cluster-api (optionally, fork it and clone the forked repo)
+```
+mkdir -p ~/go/src/sigs.k8s.io
+git clone https://github.com/kubernetes-sigs/cluster-api.git ~/go/src/sigs.k8s.io/cluster-api
+```
+- Create tilt-settings.json in the cluster-api directory
+```
+cat > ~/go/src/sigs.k8s.io/cluster-api/tilt-settings.json <<EOF
+{
+    "default_registry": "registry.metalsoft.dev/cluster-api",
+    "provider_repos": ["../../github.com/metalsoft-io/cluster-api-provider-metalsoft"],
+    "enable_providers": ["metalsoft-capi-provider", "kubeadm-bootstrap", "kubeadm-control-plane"],
+    "kustomize_substitutions": {
+        "EXP_MACHINE_POOL": "true",
+        "EXP_CLUSTER_RESOURCE_SET": "true"
+    },
+    "extra_args": {
+        "docker-kubecon": ["-zap-log-level=debug"]
+    },
+    "debug": {
+        "docker-kubecon": {
+            "continue": true,
+            "port": 31000
+        }
+    }
+}
+EOF
+```
+- Start Docker Desktop on your workstation
+- Create Kind cluster config in the cluster-api directory
+```
+cat  > ~/go/src/sigs.k8s.io/cluster-api/kind-cluster-with-extramounts.yaml <<EOF  
+kind: Cluster  
+apiVersion: kind.x-k8s.io/v1alpha4  
+name: capi-test  
+nodes:  
+- role: control-plane 
+  image: kindest/node:v1.27.3@sha256:3966ac761ae0136263ffdb6cfd4db23ef8a83cba8a463690e98317add2c9ba72 
+  extraMounts:  
+  - hostPath: /var/run/docker.sock  
+    containerPath: /var/run/docker.sock  
+EOF
+```
+- Create Kind cluster
+```
+kind create cluster --config ~/go/src/sigs.k8s.io/cluster-api/kind-cluster-with-extramounts.yaml
+```
+- Bring Tilt up
+```
+cd ~/go/src/sigs.k8s.io/cluster-api
+tilt up
+```
+- Press spacebar to open Tilt UI in browser
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+### References
+- [Cluster API Book](https://cluster-api.sigs.k8s.io)
+- [Kubebuilder Book](https://book.kubebuilder.io)
+- [Tutorial - implementation part](https://capi-samples.github.io/kubecon-na-2022-tutorial/docs/cluster-implementation)
+- [Tutorial Talk Video](https://www.youtube.com/watch?v=5-X6haLVO5A&t=3875s)
+
+
+
+
 
