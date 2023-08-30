@@ -111,10 +111,10 @@ cat > ~/go/src/sigs.k8s.io/cluster-api/tilt-settings.json <<EOF
         "EXP_CLUSTER_RESOURCE_SET": "true"
     },
     "extra_args": {
-        "docker-kubecon": ["-zap-log-level=debug"]
+        "metalsoft-capi-provider": ["-zap-log-level=debug"]
     },
     "debug": {
-        "docker-kubecon": {
+        "metalsoft-capi-provider": {
             "continue": true,
             "port": 31000
         }
