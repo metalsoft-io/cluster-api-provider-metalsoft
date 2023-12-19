@@ -1,20 +1,24 @@
-# permissions for end users to view metalsoftclusters.
+# permissions for end users to edit metalsoftmachinetemplates.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: metalsoftcluster-viewer-role
+  name: metalsoftmachinetemplate-editor-role
 rules:
 - apiGroups:
   - infrastructure.cluster.x-k8s.io
   resources:
-  - metalsoftclusters
+  - metalsoftmachinetemplates
   verbs:
+  - create
+  - delete
   - get
   - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - infrastructure.cluster.x-k8s.io
   resources:
-  - metalsoftclusters/status
+  - metalsoftmachinetemplates/status
   verbs:
   - get

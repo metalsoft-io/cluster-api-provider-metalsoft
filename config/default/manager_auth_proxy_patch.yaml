@@ -14,15 +14,15 @@ spec:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
-              - "ALL"
-        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.14.1
+            - "ALL"
+        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.15.0
         args:
-        - "--secure-listen-address=0.0.0.0:8443"
+        - "--secure-listen-address=0.0.0.0:9443"
         - "--upstream=http://127.0.0.1:8080/"
         - "--logtostderr=true"
         - "--v=0"
         ports:
-        - containerPort: 8443
+        - containerPort: 9443
           protocol: TCP
           name: https
         resources:
@@ -34,6 +34,6 @@ spec:
             memory: 64Mi
       - name: manager
         args:
-        - "--health-probe-bind-address=:8081"
+        - "--health-probe-bind-address=:9440"
         - "--metrics-bind-address=127.0.0.1:8080"
         - "--leader-elect"
