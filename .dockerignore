@@ -1,3 +1,18 @@
-# More info: https://docs.docker.com/engine/reference/builder/#dockerignore-file
-# Ignore build and test binaries.
+.git
+.github
+.vscode
+.tiltbuild/
+.envrc
+.gitignore
 bin/
+config/
+hack/
+docs/
+templates/
+test/
+scripts/
+**/.md
+tilt-provider.json
+clusterctl-settings.json
+Makefile
+PROJECT
