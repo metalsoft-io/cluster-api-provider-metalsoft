@@ -26,9 +26,6 @@ Dockerfile.cross
 *.swo
 *~
 
-# Mmanifests
-config/samples
-
 # Tilt files.
 .tiltbuild/
 /tilt.d

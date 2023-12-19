@@ -18,19 +18,27 @@ package controller
 
 import (
 	"context"
+	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	infrastructurev1alpha1 "github.com/metalsoft-io/cluster-api-provider-metalsoft/api/v1alpha1"
+	metalsoft "github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft"
 )
 
 // MetalsoftMachineReconciler reconciles a MetalsoftMachine object
 type MetalsoftMachineReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme           *runtime.Scheme
+	Recorder         record.EventRecorder
+	MetalSoftClient  *metalsoft.MetalSoftClient
+	ReconcileTimeout time.Duration
+	WatchFilterValue string
 }
 
 //+kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=metalsoftmachines,verbs=get;list;watch;create;update;patch;delete
@@ -45,7 +53,7 @@ type MetalsoftMachineReconciler struct {
 // the user.
 //
 // For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.15.0/pkg/reconcile
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.3/pkg/reconcile
 func (r *MetalsoftMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
@@ -55,7 +63,7 @@ func (r *MetalsoftMachineReconciler) Reconcile(ctx context.Context, req ctrl.Req
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *MetalsoftMachineReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *MetalsoftMachineReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&infrastructurev1alpha1.MetalsoftMachine{}).
 		Complete(r)
