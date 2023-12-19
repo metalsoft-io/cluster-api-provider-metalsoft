@@ -17,6 +17,11 @@ resources:
   kind: MetalsoftCluster
   path: github.com/metalsoft-io/cluster-api-provider-metalsoft/api/v1alpha1
   version: v1alpha1
+  webhooks:
+    conversion: true
+    defaulting: true
+    validation: true
+    webhookVersion: v1
 - api:
     crdVersion: v1
     namespaced: true
@@ -26,4 +31,35 @@ resources:
   kind: MetalsoftMachine
   path: github.com/metalsoft-io/cluster-api-provider-metalsoft/api/v1alpha1
   version: v1alpha1
+  webhooks:
+    conversion: true
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cluster.x-k8s.io
+  group: infrastructure
+  kind: MetalsoftMachineTemplate
+  path: github.com/metalsoft-io/cluster-api-provider-metalsoft/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    conversion: true
+    defaulting: true
+    validation: true
+    webhookVersion: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cluster.x-k8s.io
+  group: infrastructure
+  kind: MetalsoftClusterTemplate
+  path: github.com/metalsoft-io/cluster-api-provider-metalsoft/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    conversion: true
+    defaulting: true
+    validation: true
+    webhookVersion: v1
 version: "3"

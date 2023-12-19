@@ -20,22 +20,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // MetalsoftMachineSpec defines the desired state of MetalsoftMachine
 type MetalsoftMachineSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of MetalsoftMachine. Edit metalsoftmachine_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// WanNetworkProfileID represents the network profile ID that can be applied the WAN network.
+	// +optional
+	// WanNetworkProfileID string `json:"wanNetworkProfileID"`
 }
 
 // MetalsoftMachineStatus defines the observed state of MetalsoftMachine
 type MetalsoftMachineStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
 }
 
 //+kubebuilder:object:root=true
