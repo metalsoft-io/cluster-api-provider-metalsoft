@@ -3,11 +3,13 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.13.0
+    controller-gen.kubebuilder.io/version: v0.12.0
   name: metalsoftmachinetemplates.infrastructure.cluster.x-k8s.io
 spec:
   group: infrastructure.cluster.x-k8s.io
   names:
+    categories:
+    - cluster-api
     kind: MetalsoftMachineTemplate
     listKind: MetalsoftMachineTemplateList
     plural: metalsoftmachinetemplates
@@ -36,17 +38,99 @@ spec:
             description: MetalsoftMachineTemplateSpec defines the desired state of
               MetalsoftMachineTemplate
             properties:
-              foo:
-                description: Foo is an example field of MetalsoftMachineTemplate.
-                  Edit metalsoftmachinetemplate_types.go to remove/update
-                type: string
-            type: object
-          status:
-            description: MetalsoftMachineTemplateStatus defines the observed state
-              of MetalsoftMachineTemplate
+              template:
+                description: MetalsoftMachineTemplateResource describes the data needed
+                  to create am MetalsoftMachine from a template.
+                properties:
+                  metadata:
+                    description: 'Standard object''s metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
+                    properties:
+                      annotations:
+                        additionalProperties:
+                          type: string
+                        description: 'Annotations is an unstructured key value map
+                          stored with a resource that may be set by external tools
+                          to store and retrieve arbitrary metadata. They are not queryable
+                          and should be preserved when modifying objects. More info:
+                          http://kubernetes.io/docs/user-guide/annotations'
+                        type: object
+                      labels:
+                        additionalProperties:
+                          type: string
+                        description: 'Map of string keys and values that can be used
+                          to organize and categorize (scope and select) objects. May
+                          match selectors of replication controllers and services.
+                          More info: http://kubernetes.io/docs/user-guide/labels'
+                        type: object
+                    type: object
+                  spec:
+                    description: Spec is the specification of the desired behavior
+                      of the machine.
+                    properties:
+                      additionalDisks:
+                        description: AdditionalDisks is a list of additional disks
+                          to be attached to the instance.
+                        items:
+                          properties:
+                            diskCount:
+                              description: DiskCount is the number of disks to be
+                                attached. Default is 1.
+                              type: integer
+                            diskLabel:
+                              description: DiskLabel is the label that identifies
+                                the disk.
+                              type: string
+                            diskType:
+                              description: DiskType is the type of the storage. Default
+                                is "iscsi_ssd".
+                              type: string
+                            size:
+                              description: Size is the size of the disk in MB. Default
+                                is 40960.
+                              format: int32
+                              type: integer
+                            storageType:
+                              description: StorageType is the type of the storage,
+                                for now is just ISCSI block storage of type DriveArray
+                                or SharedDrive. Default is "drive_array".
+                              type: string
+                          type: object
+                        type: array
+                      instanceBootMethod:
+                        description: InstanceBootMethod is the boot method of the
+                          instance. Default is "local_drives".
+                        type: string
+                      instanceLabel:
+                        description: InstanceLabel is the label that identifies the
+                          instance.
+                        type: string
+                      instanceServerTypeID:
+                        description: InstanceServerTypeID is the ID of the server
+                          instance to use.
+                        type: integer
+                      instanceServerTypeName:
+                        description: InstanceServerTypeName is the type of the server
+                          instance to use.
+                        type: string
+                      osTemplateID:
+                        description: OS Template ID to use for the Control Plane instance
+                          and the Worker instances.
+                        type: integer
+                      osTemplateLabel:
+                        description: OS Template label to use for the Control Plane
+                          instance and the Worker instances.
+                        type: string
+                      providerID:
+                        description: ProviderID is the unique identifier as specified
+                          by the cloud provider.
+                        type: string
+                    type: object
+                required:
+                - spec
+                type: object
+            required:
+            - template
             type: object
         type: object
     served: true
     storage: true
-    subresources:
-      status: {}

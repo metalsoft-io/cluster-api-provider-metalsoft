@@ -20,34 +20,21 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // MetalsoftMachineTemplateSpec defines the desired state of MetalsoftMachineTemplate
 type MetalsoftMachineTemplateSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of MetalsoftMachineTemplate. Edit metalsoftmachinetemplate_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Template MetalsoftMachineTemplateResource `json:"template"`
 }
 
-// MetalsoftMachineTemplateStatus defines the observed state of MetalsoftMachineTemplate
-type MetalsoftMachineTemplateStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-}
-
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:path=metalsoftmachinetemplates,scope=Namespaced,categories=cluster-api
+// +kubebuilder:storageversion
 
 // MetalsoftMachineTemplate is the Schema for the metalsoftmachinetemplates API
 type MetalsoftMachineTemplate struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   MetalsoftMachineTemplateSpec   `json:"spec,omitempty"`
-	Status MetalsoftMachineTemplateStatus `json:"status,omitempty"`
+	Spec MetalsoftMachineTemplateSpec `json:"spec,omitempty"`
 }
 
 //+kubebuilder:object:root=true

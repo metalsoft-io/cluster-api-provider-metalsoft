@@ -5,10 +5,47 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - bootstrap.cluster.x-k8s.io
+  resources:
+  - kubeadmconfigs
+  - kubeadmconfigs/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - cluster.x-k8s.io
   resources:
   - clusters
   - clusters/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - machines
+  - machines/status
   verbs:
   - get
   - list
@@ -51,12 +88,6 @@ rules:
   - patch
   - update
   - watch
-- apiGroups:
-  - infrastructure.cluster.x-k8s.io
-  resources:
-  - metalsoftmachines/finalizers
-  verbs:
-  - update
 - apiGroups:
   - infrastructure.cluster.x-k8s.io
   resources:

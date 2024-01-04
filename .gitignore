@@ -43,3 +43,5 @@ kubeconfig
 
 # Goreleaser
 dist
+
+cluster*.yaml

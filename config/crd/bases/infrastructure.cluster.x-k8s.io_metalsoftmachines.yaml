@@ -3,18 +3,41 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.13.0
+    controller-gen.kubebuilder.io/version: v0.12.0
   name: metalsoftmachines.infrastructure.cluster.x-k8s.io
 spec:
   group: infrastructure.cluster.x-k8s.io
   names:
+    categories:
+    - cluster-api
     kind: MetalsoftMachine
     listKind: MetalsoftMachineList
     plural: metalsoftmachines
     singular: metalsoftmachine
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Cluster to which this MetalsoftMachine belongs
+      jsonPath: .metadata.labels.cluster\.x-k8s\.io/cluster-name
+      name: Cluster
+      type: string
+    - description: Metalsoft instance state
+      jsonPath: .status.instanceState
+      name: InstanceState
+      type: string
+    - description: Machine ready status
+      jsonPath: .status.ready
+      name: Ready
+      type: string
+    - description: Metalsoft instance ID
+      jsonPath: .spec.providerID
+      name: InstanceID
+      type: string
+    - description: Machine object which owns with this MetalsoftMachine
+      jsonPath: .metadata.ownerReferences[?(@.kind=="Machine")].name
+      name: Machine
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: MetalsoftMachine is the Schema for the metalsoftmachines API
@@ -33,9 +56,167 @@ spec:
             type: object
           spec:
             description: MetalsoftMachineSpec defines the desired state of MetalsoftMachine
+            properties:
+              additionalDisks:
+                description: AdditionalDisks is a list of additional disks to be attached
+                  to the instance.
+                items:
+                  properties:
+                    diskCount:
+                      description: DiskCount is the number of disks to be attached.
+                        Default is 1.
+                      type: integer
+                    diskLabel:
+                      description: DiskLabel is the label that identifies the disk.
+                      type: string
+                    diskType:
+                      description: DiskType is the type of the storage. Default is
+                        "iscsi_ssd".
+                      type: string
+                    size:
+                      description: Size is the size of the disk in MB. Default is
+                        40960.
+                      format: int32
+                      type: integer
+                    storageType:
+                      description: StorageType is the type of the storage, for now
+                        is just ISCSI block storage of type DriveArray or SharedDrive.
+                        Default is "drive_array".
+                      type: string
+                  type: object
+                type: array
+              instanceBootMethod:
+                description: InstanceBootMethod is the boot method of the instance.
+                  Default is "local_drives".
+                type: string
+              instanceLabel:
+                description: InstanceLabel is the label that identifies the instance.
+                type: string
+              instanceServerTypeID:
+                description: InstanceServerTypeID is the ID of the server instance
+                  to use.
+                type: integer
+              instanceServerTypeName:
+                description: InstanceServerTypeName is the type of the server instance
+                  to use.
+                type: string
+              osTemplateID:
+                description: OS Template ID to use for the Control Plane instance
+                  and the Worker instances.
+                type: integer
+              osTemplateLabel:
+                description: OS Template label to use for the Control Plane instance
+                  and the Worker instances.
+                type: string
+              providerID:
+                description: ProviderID is the unique identifier as specified by the
+                  cloud provider.
+                type: string
             type: object
           status:
             description: MetalsoftMachineStatus defines the observed state of MetalsoftMachine
+            properties:
+              addresses:
+                description: Addresses contains the Metalsoft instance associated
+                  addresses.
+                items:
+                  description: MachineAddress contains information for the node's
+                    address.
+                  properties:
+                    address:
+                      description: The machine address.
+                      type: string
+                    type:
+                      description: Machine address type, one of Hostname, ExternalIP,
+                        InternalIP, ExternalDNS or InternalDNS.
+                      type: string
+                  required:
+                  - address
+                  - type
+                  type: object
+                type: array
+              conditions:
+                description: Conditions defines current service state of the MetalsoftMachine.
+                items:
+                  description: Condition defines an observation of a Cluster API resource
+                    operational state.
+                  properties:
+                    lastTransitionTime:
+                      description: Last time the condition transitioned from one status
+                        to another. This should be when the underlying condition changed.
+                        If that is not known, then using the time when the API field
+                        changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: A human readable message indicating details about
+                        the transition. This field may be empty.
+                      type: string
+                    reason:
+                      description: The reason for the condition's last transition
+                        in CamelCase. The specific API may choose whether or not this
+                        field is considered a guaranteed API. This field may not be
+                        empty.
+                      type: string
+                    severity:
+                      description: Severity provides an explicit classification of
+                        Reason code, so the users or machines can immediately understand
+                        the current situation and act accordingly. The Severity field
+                        MUST be set only when Status=False.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources
+                        like Available, but because arbitrary conditions can be useful
+                        (see .node.status.conditions), the ability to deconflict is
+                        important.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - status
+                  - type
+                  type: object
+                type: array
+              failureMessage:
+                description: "FailureMessage will be set in the event that there is
+                  a terminal problem reconciling the Machine and will contain a more
+                  verbose string suitable for logging and human consumption. \n This
+                  field should not be set for transitive errors that a controller
+                  faces that are expected to be fixed automatically over time (like
+                  service outages), but instead indicate that something is fundamentally
+                  wrong with the Machine's spec or the configuration of the controller,
+                  and that manual intervention is required. Examples of terminal errors
+                  would be invalid combinations of settings in the spec, values that
+                  are unsupported by the controller, or the responsible controller
+                  itself being critically misconfigured. \n Any transient errors that
+                  occur during the reconciliation of Machines can be added as events
+                  to the Machine object and/or logged in the controller's output."
+                type: string
+              failureReason:
+                description: "FailureReason will be set in the event that there is
+                  a terminal problem reconciling the Machine and will contain a succinct
+                  value suitable for machine interpretation. \n This field should
+                  not be set for transitive errors that a controller faces that are
+                  expected to be fixed automatically over time (like service outages),
+                  but instead indicate that something is fundamentally wrong with
+                  the Machine's spec or the configuration of the controller, and that
+                  manual intervention is required. Examples of terminal errors would
+                  be invalid combinations of settings in the spec, values that are
+                  unsupported by the controller, or the responsible controller itself
+                  being critically misconfigured. \n Any transient errors that occur
+                  during the reconciliation of Machines can be added as events to
+                  the Machine object and/or logged in the controller's output."
+                type: string
+              instanceState:
+                description: InstanceState is the state of the Metalsoft instance
+                  for this machine.
+                type: string
+              ready:
+                description: Ready is true when the provider resource is ready.
+                type: boolean
             type: object
         type: object
     served: true
