@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.13.0
+    controller-gen.kubebuilder.io/version: v0.12.0
   name: metalsoftclustertemplates.infrastructure.cluster.x-k8s.io
 spec:
   group: infrastructure.cluster.x-k8s.io
@@ -90,9 +90,63 @@ spec:
                         description: InfrastructureLabel represents the label used
                           to identify the infrastructure.
                         type: string
+                      network:
+                        description: NetworkSpec encapsulates all things related to
+                          MetalSoft network.
+                        properties:
+                          label:
+                            description: Label is the label of the network to be used.
+                            type: string
+                          networkProfileID:
+                            description: NetworkProfileID represents the network profile
+                              ID that can be applied to the network.
+                            type: integer
+                          subnets:
+                            description: Subnets configuration.
+                            items:
+                              description: SubnetSpec configures an Metalsoft Subnet.
+                              properties:
+                                subnet_automatic_allocation:
+                                  description: Specifies if subnet will be used for
+                                    allocating IP addresses via DHCP
+                                  type: boolean
+                                subnet_label:
+                                  description: Label defines a unique identifier to
+                                    reference this resource.
+                                  type: string
+                                subnet_prefix_size:
+                                  default: 29
+                                  description: 'Subnet prefix size, such as /30, /27,
+                                    etc. For IPv4 subnets can be one of: 27, 28, 29,
+                                    30. For IPv6 subnet can only be 64.'
+                                  enum:
+                                  - 27
+                                  - 28
+                                  - 29
+                                  - 30
+                                  - 64
+                                  type: integer
+                                subnet_type:
+                                  default: ipv4
+                                  description: Type is the type of the network to
+                                    be used.
+                                  enum:
+                                  - ipv4
+                                  - ipv6
+                                  type: string
+                              type: object
+                            type: array
+                          type:
+                            default: wan
+                            description: Type is the type of the network to be used.
+                            enum:
+                            - wan
+                            - lan
+                            - san
+                            type: string
+                        type: object
                     required:
                     - datacenterName
-                    - infrastructureLabel
                     type: object
                 required:
                 - spec

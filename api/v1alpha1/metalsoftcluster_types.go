@@ -31,10 +31,16 @@ const (
 type MetalsoftClusterSpec struct {
 
 	// DatacenterName represents the name of the datacenter where the cluster is deployed.
+	// +kubebuilder:validation:Required
 	DatacenterName string `json:"datacenterName"`
 
 	// InfrastructureLabel represents the label used to identify the infrastructure.
+	// +optional
 	InfrastructureLabel string `json:"infrastructureLabel"`
+
+	// NetworkSpec encapsulates all things related to MetalSoft network.
+	// +optional
+	Network NetworkSpec `json:"network"`
 
 	// ControlPlaneEndpoint represents the endpoint used to communicate with the control plane.
 	// +optional
@@ -54,6 +60,7 @@ type MetalsoftClusterStatus struct {
 // +kubebuilder:storageversion
 // +kubebuilder:printcolumn:name="Cluster",type="string",JSONPath=".metadata.labels.cluster\\.x-k8s\\.io/cluster-name",description="Cluster to which this MetalsoftCluster belongs"
 // +kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready",description="MetalsoftCluster ready status"
+// +kubebuilder:printcolumn:name="Endpoint",type="string",JSONPath=".status.apiEndpoints[0]",description="API Endpoint",priority=1
 
 // MetalsoftCluster is the Schema for the metalsoftclusters API
 type MetalsoftCluster struct {

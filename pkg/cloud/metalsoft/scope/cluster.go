@@ -69,6 +69,13 @@ func (s *ClusterScope) InfrastructureLabel() string {
 	return s.MetalsoftCluster.Spec.InfrastructureLabel
 }
 
+// ControlPlaneEndpoint returns the cluster control-plane endpoint.
+func (s *ClusterScope) ControlPlaneEndpoint() clusterv1.APIEndpoint {
+	endpoint := s.MetalsoftCluster.Spec.ControlPlaneEndpoint
+	endpoint.Port = 6443
+	return endpoint
+}
+
 // SetReady sets the MetalsoftCluster Ready Status.
 func (s *ClusterScope) SetReady() {
 	s.MetalsoftCluster.Status.Ready = true

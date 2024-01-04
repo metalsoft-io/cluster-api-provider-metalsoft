@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	// "k8s.io/client-go/tools/record"
+
 	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/cluster-api/util/annotations"
 	"sigs.k8s.io/cluster-api/util/record"
@@ -54,6 +55,7 @@ type MetalsoftClusterReconciler struct {
 //+kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=metalsoftclusters/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=metalsoftclusters/finalizers,verbs=update
 //+kubebuilder:rbac:groups=cluster.x-k8s.io,resources=clusters;clusters/status,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
 
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.16.3/pkg/reconcile
@@ -132,8 +134,19 @@ func (r *MetalsoftClusterReconciler) reconcileNormal(ctx context.Context, cluste
 
 	log.Info("DatacenterName: " + datacenterName)
 	log.Info("InfrastructureLabel: " + infrastructureLabel)
-	// Create the Metalsoft Infrastructure
 
+	// ToDo
+
+	controlPlaneEndpoint := clusterScope.ControlPlaneEndpoint()
+	if controlPlaneEndpoint.Host == "" {
+		log.Info("MetalsoftCluster does not have control-plane endpoint yet. Reconciling")
+		record.Event(clusterScope.MetalsoftCluster, "MetalsoftClusterReconcile", "Waiting for control-plane endpoint")
+		return ctrl.Result{RequeueAfter: 5 * time.Second}, nil
+	}
+
+	record.Eventf(clusterScope.MetalsoftCluster, "MetalsoftClusterReconcile", "Got control-plane endpoint - %s", controlPlaneEndpoint.Host)
+	clusterScope.SetReady()
+	record.Event(clusterScope.MetalsoftCluster, "MetalsoftClusterReconcile", "Reconciled")
 	return ctrl.Result{}, nil
 }
 
