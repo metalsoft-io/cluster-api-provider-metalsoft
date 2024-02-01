@@ -18,28 +18,49 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+const (
+	// ClusterFinalizer allows ReconcileMetalsoftCluster to clean up Metalsoft resources associated with MetalsoftCluster before
+	// removing it from the apiserver.
+	ClusterFinalizer = "metalsoftcluster.infrastructure.cluster.x-k8s.io"
+)
 
 // MetalsoftClusterSpec defines the desired state of MetalsoftCluster
 type MetalsoftClusterSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of MetalsoftCluster. Edit metalsoftcluster_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// DatacenterName represents the name of the datacenter where the cluster is deployed.
+	// +kubebuilder:validation:Required
+	DatacenterName string `json:"datacenterName"`
+
+	// InfrastructureLabel represents the label used to identify the infrastructure.
+	// +optional
+	InfrastructureLabel string `json:"infrastructureLabel"`
+
+	// NetworkSpec encapsulates all things related to MetalSoft network.
+	// +optional
+	Network NetworkSpec `json:"network"`
+
+	// ControlPlaneEndpoint represents the endpoint used to communicate with the control plane.
+	// +optional
+	ControlPlaneEndpoint clusterv1.APIEndpoint `json:"controlPlaneEndpoint"`
 }
 
 // MetalsoftClusterStatus defines the observed state of MetalsoftCluster
 type MetalsoftClusterStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Ready denotes that the cluster (infrastructure) is ready.
+	// +optional
+	Ready bool `json:"ready"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:subresource:status
+// +kubebuilder:resource:path=metalsoftclusters,scope=Namespaced,categories=cluster-api
+// +kubebuilder:object:root=true
+// +kubebuilder:storageversion
+// +kubebuilder:printcolumn:name="Cluster",type="string",JSONPath=".metadata.labels.cluster\\.x-k8s\\.io/cluster-name",description="Cluster to which this MetalsoftCluster belongs"
+// +kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.ready",description="MetalsoftCluster ready status"
+// +kubebuilder:printcolumn:name="Endpoint",type="string",JSONPath=".status.apiEndpoints[0]",description="API Endpoint",priority=1
 
 // MetalsoftCluster is the Schema for the metalsoftclusters API
 type MetalsoftCluster struct {

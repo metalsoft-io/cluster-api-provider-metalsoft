@@ -1,17 +1,19 @@
 [
-    {
-      "name": "metalsoft-capi-provider",
-      "config": {
-        "image": "registry.metalsoft.dev/cluster-api/cluster-api-provider-metalsoft:develop",
-        "live_reload_deps": [
-          "cmd/main.go",
-          "go.mod",
-          "go.sum",
-          "api",
-          "controllers",
-          "pkg"
-        ],
-        "label": "CAPMS"
-      }
+  {
+    "name": "metalsoft",
+    "config": {
+      "image": "registry.metalsoft.dev/cluster-api/cluster-api-provider-metalsoft:develop",
+      "go_main": "cmd/main.go",
+      "live_reload_deps": [
+        "cmd/main.go",
+        "go.mod",
+        "go.sum",
+        "api",
+        "internal",
+        "pkg/"
+      ],
+      "label": "CAPMS",
+      "manager_name": "capms-controller-manager"
     }
+  }
 ]

@@ -21,7 +21,27 @@ Dockerfile.cross
 # editor and IDE paraphernalia
 .idea
 .vscode
+*.code-workspace
 *.swp
 *.swo
 *~
+
+# Tilt files.
 .tiltbuild/
+/tilt.d
+tilt-settings.json
+tilt_config.json
+
+# direnv files
+.envrc
+
+# kubeconfigs
+kind.kubeconfig
+minikube.kubeconfig
+kubeconfig
+*.kubeconfig
+
+# Goreleaser
+dist
+
+cluster*.yaml

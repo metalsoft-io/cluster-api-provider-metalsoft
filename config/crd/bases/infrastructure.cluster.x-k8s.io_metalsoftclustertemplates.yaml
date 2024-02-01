@@ -1,0 +1,159 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.12.0
+  name: metalsoftclustertemplates.infrastructure.cluster.x-k8s.io
+spec:
+  group: infrastructure.cluster.x-k8s.io
+  names:
+    categories:
+    - cluster-api
+    kind: MetalsoftClusterTemplate
+    listKind: MetalsoftClusterTemplateList
+    plural: metalsoftclustertemplates
+    shortNames:
+    - metalsoftct
+    singular: metalsoftclustertemplate
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: MetalsoftClusterTemplate is the Schema for the metalsoftclustertemplates
+          API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: MetalsoftClusterTemplateSpec defines the desired state of
+              MetalsoftClusterTemplate
+            properties:
+              template:
+                properties:
+                  metadata:
+                    description: 'Standard object''s metadata. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
+                    properties:
+                      annotations:
+                        additionalProperties:
+                          type: string
+                        description: 'Annotations is an unstructured key value map
+                          stored with a resource that may be set by external tools
+                          to store and retrieve arbitrary metadata. They are not queryable
+                          and should be preserved when modifying objects. More info:
+                          http://kubernetes.io/docs/user-guide/annotations'
+                        type: object
+                      labels:
+                        additionalProperties:
+                          type: string
+                        description: 'Map of string keys and values that can be used
+                          to organize and categorize (scope and select) objects. May
+                          match selectors of replication controllers and services.
+                          More info: http://kubernetes.io/docs/user-guide/labels'
+                        type: object
+                    type: object
+                  spec:
+                    description: MetalsoftClusterSpec defines the desired state of
+                      MetalsoftCluster
+                    properties:
+                      controlPlaneEndpoint:
+                        description: ControlPlaneEndpoint represents the endpoint
+                          used to communicate with the control plane.
+                        properties:
+                          host:
+                            description: The hostname on which the API server is serving.
+                            type: string
+                          port:
+                            description: The port on which the API server is serving.
+                            format: int32
+                            type: integer
+                        required:
+                        - host
+                        - port
+                        type: object
+                      datacenterName:
+                        description: DatacenterName represents the name of the datacenter
+                          where the cluster is deployed.
+                        type: string
+                      infrastructureLabel:
+                        description: InfrastructureLabel represents the label used
+                          to identify the infrastructure.
+                        type: string
+                      network:
+                        description: NetworkSpec encapsulates all things related to
+                          MetalSoft network.
+                        properties:
+                          label:
+                            description: Label is the label of the network to be used.
+                            type: string
+                          networkProfileID:
+                            description: NetworkProfileID represents the network profile
+                              ID that can be applied to the network.
+                            type: integer
+                          subnets:
+                            description: Subnets configuration.
+                            items:
+                              description: SubnetSpec configures an Metalsoft Subnet.
+                              properties:
+                                subnet_automatic_allocation:
+                                  description: Specifies if subnet will be used for
+                                    allocating IP addresses via DHCP
+                                  type: boolean
+                                subnet_label:
+                                  description: Label defines a unique identifier to
+                                    reference this resource.
+                                  type: string
+                                subnet_prefix_size:
+                                  default: 29
+                                  description: 'Subnet prefix size, such as /30, /27,
+                                    etc. For IPv4 subnets can be one of: 27, 28, 29,
+                                    30. For IPv6 subnet can only be 64.'
+                                  enum:
+                                  - 27
+                                  - 28
+                                  - 29
+                                  - 30
+                                  - 64
+                                  type: integer
+                                subnet_type:
+                                  default: ipv4
+                                  description: Type is the type of the network to
+                                    be used.
+                                  enum:
+                                  - ipv4
+                                  - ipv6
+                                  type: string
+                              type: object
+                            type: array
+                          type:
+                            default: wan
+                            description: Type is the type of the network to be used.
+                            enum:
+                            - wan
+                            - lan
+                            - san
+                            type: string
+                        type: object
+                    required:
+                    - datacenterName
+                    type: object
+                required:
+                - spec
+                type: object
+            required:
+            - template
+            type: object
+        type: object
+    served: true
+    storage: true
