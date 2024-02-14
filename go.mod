@@ -3,7 +3,7 @@ module github.com/metalsoft-io/cluster-api-provider-metalsoft
 go 1.20
 
 require (
-	github.com/metalsoft-io/metal-cloud-sdk-go/v2 v2.10.6
+	github.com/metalsoft-io/metal-cloud-sdk-go/v2 v2.12.3
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.10
 	github.com/pkg/errors v0.9.1

@@ -45,6 +45,10 @@ type MetalsoftClusterSpec struct {
 	// ControlPlaneEndpoint represents the endpoint used to communicate with the control plane.
 	// +optional
 	ControlPlaneEndpoint clusterv1.APIEndpoint `json:"controlPlaneEndpoint"`
+
+	// LoadBalancer endpoint expects a range of ips
+	// +optional
+	// LoadBalancerEndpoint
 }
 
 // MetalsoftClusterStatus defines the observed state of MetalsoftCluster

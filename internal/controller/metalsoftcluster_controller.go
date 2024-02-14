@@ -135,7 +135,7 @@ func (r *MetalsoftClusterReconciler) reconcileNormal(ctx context.Context, cluste
 	log.Info("DatacenterName: " + datacenterName)
 	log.Info("InfrastructureLabel: " + infrastructureLabel)
 
-	// ToDo
+	//  Get the endpoint
 
 	controlPlaneEndpoint := clusterScope.ControlPlaneEndpoint()
 	if controlPlaneEndpoint.Host == "" {
