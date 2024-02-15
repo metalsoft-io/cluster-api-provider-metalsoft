@@ -18,6 +18,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -131,11 +132,22 @@ func (r *MetalsoftClusterReconciler) reconcileNormal(ctx context.Context, cluste
 
 	datacenterName := clusterScope.DatacenterName()
 	infrastructureLabel := clusterScope.InfrastructureLabel()
+	// vipSubnetLabel := clusterScope.VipSubnetLabel()
+	vipSubnetLabel := ""
 
 	log.Info("DatacenterName: " + datacenterName)
 	log.Info("InfrastructureLabel: " + infrastructureLabel)
 
 	//  Get the endpoint
+	endpoint, err := r.MetalSoftClient.SetControlPlaneEndpoint(datacenterName, infrastructureLabel, vipSubnetLabel) // Todo: Update naming of this function
+
+	if err != nil {
+		fmt.Printf("Error setting control plane endpoint: %v\n", err)
+		return ctrl.Result{}, err
+	}
+
+	// log the endpoint
+	log.Info("Control Plane Endpoint: " + endpoint)
 
 	controlPlaneEndpoint := clusterScope.ControlPlaneEndpoint()
 	if controlPlaneEndpoint.Host == "" {

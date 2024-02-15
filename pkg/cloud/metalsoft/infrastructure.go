@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	metalcloud "github.com/metalsoft-io/metal-cloud-sdk-go/v2"
 	"github.com/pkg/errors"
-	// "metalsoft.local/metalsoft"
 )
 
 const (
@@ -33,7 +32,7 @@ type MetalsoftClusterSpec struct {
 	VipSubnetLabel      string `json:"vipSubnetLabel"`
 }
 
-func setControlPlaneEndpoint(client *metalcloud.Client, datacenterName string, infraLabel string, vipSubnetLabel string) (string, error) {
+func SetControlPlaneEndpoint(client *metalcloud.Client, datacenterName string, infraLabel string, vipSubnetLabel string) (string, error) {
 	infraDataFromCluster := MetalsoftClusterSpec{
 		InfrastructureLabel: infraLabel,
 		DatacenterName:      datacenterName,

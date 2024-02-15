@@ -23,6 +23,10 @@ const (
 
 const endpointPath = "/api/developer/developer"
 
+type ControlPlaneSetter interface {
+	SetControlPlaneEndpoint(datacenterName, infraLabel, vipSubnetLabel string) (string, error)
+}
+
 type MetalSoftClient struct {
 	*metalcloud.Client
 }
@@ -54,6 +58,17 @@ func GetClient() (*MetalSoftClient, error) {
 	}
 
 	return &MetalSoftClient{client}, nil
+}
+
+// SetControlPlaneEndpoint sets the control plane endpoint for a given infrastructure
+func (msc *MetalSoftClient) SetControlPlaneEndpoint(datacenterName, infraLabel, vipSubnetLabel string) (string, error) {
+	infraDataFromCluster := MetalsoftClusterSpec{
+		InfrastructureLabel: infraLabel,
+		DatacenterName:      datacenterName,
+		VipSubnetLabel:      vipSubnetLabel,
+	}
+
+	return SetControlPlaneEndpoint(msc.Client, infraDataFromCluster.DatacenterName, infraDataFromCluster.InfrastructureLabel, infraDataFromCluster.VipSubnetLabel)
 }
 
 func getCredentialsFromEnv() (*credential, error) {
