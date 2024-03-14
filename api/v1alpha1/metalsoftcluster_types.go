@@ -34,6 +34,10 @@ type MetalsoftClusterSpec struct {
 	// +kubebuilder:validation:Required
 	DatacenterName string `json:"datacenterName"`
 
+	// InfrastructureID represents the ID used to identify the infrastructure. (set during setControlPlaneEndpoint)
+	// +optional
+	InfrastructureID int `json:"infrastructureID"`
+
 	// InfrastructureLabel represents the label used to identify the infrastructure.
 	// +optional
 	InfrastructureLabel string `json:"infrastructureLabel"`

@@ -12,20 +12,16 @@ import (
 )
 
 const (
-	userEmailEnvVar   = "METALSOFT_USER_EMAIL"
-	apiKeyEnvVar      = "METALSOFT_API_KEY"
-	apiEndpointEnvVar = "METALSOFT_ENDPOINT"
-	// datacenterEnvVar     = "METALSOFT_DATACENTER"
+	userEmailEnvVar      = "METALSOFT_USER_EMAIL"
+	apiKeyEnvVar         = "METALSOFT_API_KEY"
+	apiEndpointEnvVar    = "METALSOFT_ENDPOINT"
+	datacenterEnvVar     = "METALSOFT_DATACENTER"
 	loggingEnabledEnvVar = "METALSOFT_LOGGING_ENABLED"
 
 	credentialsFileEnvVar = "METALSOFT_CREDENTIALS_FILE_PATH"
 )
 
 const endpointPath = "/api/developer/developer"
-
-type ControlPlaneSetter interface {
-	SetControlPlaneEndpoint(datacenterName, infraLabel, vipSubnetLabel string) (string, error)
-}
 
 type MetalSoftClient struct {
 	*metalcloud.Client
@@ -58,17 +54,6 @@ func GetClient() (*MetalSoftClient, error) {
 	}
 
 	return &MetalSoftClient{client}, nil
-}
-
-// SetControlPlaneEndpoint sets the control plane endpoint for a given infrastructure
-func (msc *MetalSoftClient) SetControlPlaneEndpoint(datacenterName, infraLabel, vipSubnetLabel string) (string, error) {
-	infraDataFromCluster := MetalsoftClusterSpec{
-		InfrastructureLabel: infraLabel,
-		DatacenterName:      datacenterName,
-		VipSubnetLabel:      vipSubnetLabel,
-	}
-
-	return SetControlPlaneEndpoint(msc.Client, infraDataFromCluster.DatacenterName, infraDataFromCluster.InfrastructureLabel, infraDataFromCluster.VipSubnetLabel)
 }
 
 func getCredentialsFromEnv() (*credential, error) {

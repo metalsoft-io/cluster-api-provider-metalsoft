@@ -57,6 +57,7 @@ import (
 	//+kubebuilder:scaffold:imports
 
 	metalsoft "github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft"
+	"github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft/services"
 )
 
 var (
@@ -314,6 +315,7 @@ func main() {
 
 func setupReconcilers(ctx context.Context, mgr ctrl.Manager) error {
 	client, err := metalsoft.GetClient()
+	controlPlaneEndpointService := services.NewControlPlaneEndpointService(client)
 	if err != nil {
 		setupLog.Error(err, "unable to create Metalsoft client")
 		os.Exit(1)
@@ -323,9 +325,10 @@ func setupReconcilers(ctx context.Context, mgr ctrl.Manager) error {
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 		// Recorder:         mgr.GetEventRecorderFor("metalsoft-controller"),
-		MetalSoftClient:  client,
-		ReconcileTimeout: reconcileTimeout,
-		WatchFilterValue: watchFilterValue,
+		ControlPlaneEndpointService: controlPlaneEndpointService,
+		MetalSoftClient:             client,
+		ReconcileTimeout:            reconcileTimeout,
+		WatchFilterValue:            watchFilterValue,
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: metalsoftClusterConcurrency}); err != nil {
 		return fmt.Errorf("setting up MetalsoftCluster controller: %w", err)
 	}

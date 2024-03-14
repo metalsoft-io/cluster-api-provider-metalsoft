@@ -26,6 +26,7 @@ import (
 
 	// "k8s.io/client-go/tools/record"
 
+	"sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/cluster-api/util/annotations"
 	"sigs.k8s.io/cluster-api/util/record"
@@ -38,6 +39,7 @@ import (
 	infrav1 "github.com/metalsoft-io/cluster-api-provider-metalsoft/api/v1alpha1"
 	metalsoft "github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft"
 	"github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft/scope"
+	"github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft/services"
 	"github.com/metalsoft-io/cluster-api-provider-metalsoft/util/reconciler"
 	"github.com/pkg/errors"
 )
@@ -46,10 +48,11 @@ import (
 type MetalsoftClusterReconciler struct {
 	client.Client
 	// Recorder         record.EventRecorder
-	Scheme           *runtime.Scheme
-	MetalSoftClient  *metalsoft.MetalSoftClient
-	ReconcileTimeout time.Duration
-	WatchFilterValue string
+	Scheme                      *runtime.Scheme
+	MetalSoftClient             *metalsoft.MetalSoftClient
+	ControlPlaneEndpointService *services.ControlPlaneEndpointService
+	ReconcileTimeout            time.Duration
+	WatchFilterValue            string
 }
 
 //+kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=metalsoftclusters,verbs=get;list;watch;create;update;patch;delete
@@ -130,24 +133,22 @@ func (r *MetalsoftClusterReconciler) reconcileNormal(ctx context.Context, cluste
 		}
 	}
 
-	datacenterName := clusterScope.DatacenterName()
-	infrastructureLabel := clusterScope.InfrastructureLabel()
-	// vipSubnetLabel := clusterScope.VipSubnetLabel()
-	vipSubnetLabel := ""
-
-	log.Info("DatacenterName: " + datacenterName)
-	log.Info("InfrastructureLabel: " + infrastructureLabel)
-
 	//  Get the endpoint
-	endpoint, err := r.MetalSoftClient.SetControlPlaneEndpoint(datacenterName, infrastructureLabel, vipSubnetLabel) // Todo: Update naming of this function
+	endpoint, err := r.ControlPlaneEndpointService.GetEndpoint(ctx, clusterScope)
 
 	if err != nil {
 		fmt.Printf("Error setting control plane endpoint: %v\n", err)
 		return ctrl.Result{}, err
 	}
 
-	// log the endpoint
-	log.Info("Control Plane Endpoint: " + endpoint)
+	if endpoint != "" {
+		log.Info("Control Plane Endpoint: " + endpoint)
+
+		clusterScope.SetControlPlaneEndpoint(v1beta1.APIEndpoint{
+			Host: endpoint,
+			Port: 6443,
+		})
+	}
 
 	controlPlaneEndpoint := clusterScope.ControlPlaneEndpoint()
 	if controlPlaneEndpoint.Host == "" {
