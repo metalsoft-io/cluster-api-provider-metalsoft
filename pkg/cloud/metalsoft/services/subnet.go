@@ -9,10 +9,16 @@ import (
 )
 
 type SubnetService struct {
-	*metalsoft.MetalSoftClient
+	Client *metalsoft.MetalSoftClient
 }
 
-func (service *SubnetService) createGetSubnet(wanNetworkId int, infraID int, subnetLabel string) (*metalcloud.Subnet, error) {
+func NewSubnetService(client *metalsoft.MetalSoftClient) *SubnetService {
+	return &SubnetService{
+		Client: client,
+	}
+}
+
+func (service *SubnetService) CreateGetSubnet(wanNetworkId int, infraID int, subnetLabel string) (*metalcloud.Subnet, error) {
 	subnet := metalcloud.Subnet{
 		NetworkID:                 wanNetworkId,
 		InfrastructureID:          infraID,
@@ -23,7 +29,7 @@ func (service *SubnetService) createGetSubnet(wanNetworkId int, infraID int, sub
 		SubnetAutomaticAllocation: false,
 	}
 
-	createdSubnet, err := service.SubnetCreate(subnet)
+	createdSubnet, err := service.Client.SubnetCreate(subnet)
 
 	if err != nil {
 		if strings.Contains(err.Error(), subnetAlreadyExistsRefCode) || strings.Contains(err.Error(), "42bde79f729065b21e8583dd00cf48e0") {
@@ -31,7 +37,7 @@ func (service *SubnetService) createGetSubnet(wanNetworkId int, infraID int, sub
 			if err != nil {
 				return nil, err
 			}
-			return service.getSubnet(id)
+			return service.GetSubnet(id)
 		}
 		return nil, errors.Wrap(err, "failed to create or get existing subnet")
 	}
@@ -39,8 +45,8 @@ func (service *SubnetService) createGetSubnet(wanNetworkId int, infraID int, sub
 	return createdSubnet, nil
 }
 
-func (service *SubnetService) getSubnet(subnetID int) (*metalcloud.Subnet, error) {
-	subnet, err := service.SubnetGet(subnetID)
+func (service *SubnetService) GetSubnet(subnetID int) (*metalcloud.Subnet, error) {
+	subnet, err := service.Client.SubnetGet(subnetID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get subnet")
 	}

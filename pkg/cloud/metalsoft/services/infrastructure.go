@@ -11,7 +11,13 @@ import (
 )
 
 type InfrastructureService struct {
-	*metalsoft.MetalSoftClient
+	Client *metalsoft.MetalSoftClient
+}
+
+func NewInfrastructureService(client *metalsoft.MetalSoftClient) *InfrastructureService {
+	return &InfrastructureService{
+		Client: client,
+	}
 }
 
 var (
@@ -23,13 +29,13 @@ const (
 	subnetAlreadyExistsRefCode         = "96cb5b6dffa2dcd7805e02e89fd890cb"
 )
 
-func (service *InfrastructureService) createGetInfrastructure(infrastructureLabel string, datacenterName string) (*metalcloud.Infrastructure, error) {
+func (service *InfrastructureService) CreateGetInfrastructure(infrastructureLabel string, datacenterName string) (*metalcloud.Infrastructure, error) {
 	infra := metalcloud.Infrastructure{
 		InfrastructureLabel: infrastructureLabel,
 		DatacenterName:      datacenterName,
 	}
 
-	createdInfra, err := service.InfrastructureCreate(infra)
+	createdInfra, err := service.Client.InfrastructureCreate(infra)
 
 	if err != nil {
 		if strings.Contains(err.Error(), infrastructureAlreadyExistsRefCode) {
@@ -37,15 +43,15 @@ func (service *InfrastructureService) createGetInfrastructure(infrastructureLabe
 			if err != nil {
 				return nil, err
 			}
-			return service.InfrastructureGet(id)
+			return service.Client.InfrastructureGet(id)
 		}
 		return nil, errors.Wrap(err, "failed to create or get existing infrastructure")
 	}
 	return createdInfra, nil
 }
 
-func (service *InfrastructureService) getInfrastructure(infrastructureID int) (*metalcloud.Infrastructure, error) {
-	infra, err := service.InfrastructureGet(infrastructureID)
+func (service *InfrastructureService) GetInfrastructure(infrastructureID int) (*metalcloud.Infrastructure, error) {
+	infra, err := service.Client.InfrastructureGet(infrastructureID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get infrastructure")
 	}

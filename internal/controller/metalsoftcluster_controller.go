@@ -36,11 +36,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/google/uuid"
 	infrav1 "github.com/metalsoft-io/cluster-api-provider-metalsoft/api/v1alpha1"
 	metalsoft "github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft"
 	"github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft/scope"
 	"github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft/services"
 	"github.com/metalsoft-io/cluster-api-provider-metalsoft/util/reconciler"
+	metalcloud "github.com/metalsoft-io/metal-cloud-sdk-go/v2"
 	"github.com/pkg/errors"
 )
 
@@ -48,11 +50,13 @@ import (
 type MetalsoftClusterReconciler struct {
 	client.Client
 	// Recorder         record.EventRecorder
-	Scheme                      *runtime.Scheme
-	MetalSoftClient             *metalsoft.MetalSoftClient
-	ControlPlaneEndpointService *services.ControlPlaneEndpointService
-	ReconcileTimeout            time.Duration
-	WatchFilterValue            string
+	Scheme                *runtime.Scheme
+	MetalSoftClient       *metalsoft.MetalSoftClient
+	InfrastructureService *services.InfrastructureService
+	SubnetService         *services.SubnetService
+	VariablesService      *services.VariablesService
+	ReconcileTimeout      time.Duration
+	WatchFilterValue      string
 }
 
 //+kubebuilder:rbac:groups=infrastructure.cluster.x-k8s.io,resources=metalsoftclusters,verbs=get;list;watch;create;update;patch;delete
@@ -122,6 +126,109 @@ func (r *MetalsoftClusterReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	return r.reconcileNormal(ctx, clusterScope)
 }
 
+func (es *MetalsoftClusterReconciler) getEndpoint(ctx context.Context, clusterScope *scope.ClusterScope) (string, error) {
+	log := log.FromContext(ctx)
+
+	var infrastructure *metalcloud.Infrastructure
+	var subnet *metalcloud.Subnet
+	var err error
+
+	datacenterName := clusterScope.DatacenterName()
+	infrastructureLabel := clusterScope.InfrastructureLabel()
+	controlPlaneEndpoint := clusterScope.ControlPlaneEndpoint()
+	vipSubnetLabel := ""
+	// vipSubnetLabel := clusterScope.VipSubnetLabel()
+	infrastructureID := clusterScope.InfrastructureID()
+	subnetId := clusterScope.SubnetID()
+	// TODO: Get rid of subetSubdomain and use humanReadable IP instead
+	subnetSubdomain := clusterScope.SubnetSubdomain()
+
+	if datacenterName == "" {
+		return "", errors.New("DatacenterName is required")
+	}
+
+	if infrastructureLabel == "" {
+		infrastructureLabel = "cluster-api-" + generateRandomID()
+	}
+
+	if vipSubnetLabel == "" {
+		vipSubnetLabel = "cluster-api-subnet-" + generateRandomID()
+	}
+
+	if infrastructureID != 0 {
+		infrastructure, err = es.InfrastructureService.GetInfrastructure(infrastructureID)
+
+		// 	// TODO: Differentiate if the infrastructure is part of a cluster or not // check infrastructure.operation
+
+		if err != nil {
+			return "", errors.Wrap(err, "failed to get infrastructure")
+		}
+	} else {
+		infrastructure, err = es.InfrastructureService.CreateGetInfrastructure(infrastructureLabel, datacenterName)
+
+		if err != nil {
+			return "", errors.Wrap(err, "failed to create or get existing infrastructure")
+		}
+		clusterScope.SetInfrastructureID(infrastructure.InfrastructureID)
+	}
+
+	if subnetId != 0 {
+		subnet, err = es.SubnetService.GetSubnet(subnetId)
+
+		if err != nil {
+			return "", errors.Wrap(err, "failed to get subnet")
+		}
+	} else {
+		networks, err := es.MetalSoftClient.Networks(infrastructure.InfrastructureID)
+
+		if err != nil {
+			log.Error(err, "Error getting networks")
+			return "", err
+		}
+
+		wanNetworkId := (*networks)["wan"].NetworkID
+
+		if wanNetworkId == 0 {
+			log.Error(err, "Error getting wan network")
+			return "", errors.New("wan network not found")
+		}
+
+		subnet, err = es.SubnetService.CreateGetSubnet(wanNetworkId, infrastructure.InfrastructureID, vipSubnetLabel)
+
+		if err != nil {
+			log.Error(err, "Error creating or getting subnet")
+			return "", errors.Wrap(err, "failed to create or get existing subnet")
+		}
+
+		clusterScope.SetSubnetID(subnet.SubnetID)
+	}
+
+	if subnet.SubnetSubdomain == "" {
+		log.Info("SubnetSubdomain not found")
+		return "", errors.New("subnetSubDomain not found")
+	}
+
+	if controlPlaneEndpoint.Host == "" {
+		// We are setting the variable kube_vip_address with the subnetSubdomain only once
+		clusterScope.SetSubnetSubdomain(subnet.SubnetSubdomain)
+
+		variableName := "kube_vip_address"
+
+		variableValue := `{"value":" ` + subnetSubdomain + ` "}`
+		_, err = es.VariablesService.CreateVariable(variableName, variableValue)
+
+		if err != nil {
+			return "", errors.Wrap(err, "failed to create or get existing variable")
+		}
+	}
+
+	return subnet.SubnetSubdomain, nil
+}
+
+func generateRandomID() string {
+	return uuid.New().String()
+}
+
 func (r *MetalsoftClusterReconciler) reconcileNormal(ctx context.Context, clusterScope *scope.ClusterScope) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 	log.Info("Reconciling MetalsoftCluster")
@@ -134,7 +241,7 @@ func (r *MetalsoftClusterReconciler) reconcileNormal(ctx context.Context, cluste
 	}
 
 	//  Get the endpoint
-	endpoint, err := r.ControlPlaneEndpointService.GetEndpoint(ctx, clusterScope)
+	endpoint, err := r.getEndpoint(ctx, clusterScope)
 
 	if err != nil {
 		fmt.Printf("Error setting control plane endpoint: %v\n", err)

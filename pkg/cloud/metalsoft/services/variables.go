@@ -6,23 +6,29 @@ import (
 )
 
 type VariablesService struct {
-	*metalsoft.MetalSoftClient
+	Client *metalsoft.MetalSoftClient
 }
 
-func (service *VariablesService) createVariable(variableName, variableValue string) (*metalcloud.Variable, error) {
+func NewVariablesService(client *metalsoft.MetalSoftClient) *VariablesService {
+	return &VariablesService{
+		Client: client,
+	}
+}
+
+func (service *VariablesService) CreateVariable(variableName, variableValue string) (*metalcloud.Variable, error) {
 	variable := metalcloud.Variable{
 		VariableName: variableName,
 		VariableJSON: variableValue,
 	}
-	createdVariable, err := service.VariableCreate(variable)
+	createdVariable, err := service.Client.VariableCreate(variable)
 	if err != nil {
 		return nil, err
 	}
 	return createdVariable, nil
 }
 
-func (service *VariablesService) getVariable(variableID int) (*metalcloud.Variable, error) {
-	variable, err := service.VariableGet(variableID)
+func (service *VariablesService) GetVariable(variableID int) (*metalcloud.Variable, error) {
+	variable, err := service.Client.VariableGet(variableID)
 	if err != nil {
 		return nil, err
 	}

@@ -312,23 +312,27 @@ func main() {
 		os.Exit(1)
 	}
 }
-
 func setupReconcilers(ctx context.Context, mgr ctrl.Manager) error {
 	client, err := metalsoft.GetClient()
-	controlPlaneEndpointService := services.NewControlPlaneEndpointService(client)
 	if err != nil {
 		setupLog.Error(err, "unable to create Metalsoft client")
 		os.Exit(1)
 	}
 
+	infrastructureService := services.NewInfrastructureService(client)
+	subnetService := services.NewSubnetService(client)
+	variablesService := services.NewVariablesService(client)
+
 	if err = (&controllers.MetalsoftClusterReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
-		// Recorder:         mgr.GetEventRecorderFor("metalsoft-controller"),
-		ControlPlaneEndpointService: controlPlaneEndpointService,
-		MetalSoftClient:             client,
-		ReconcileTimeout:            reconcileTimeout,
-		WatchFilterValue:            watchFilterValue,
+		// Recorder:                    mgr.GetEventRecorderFor("metalsoft-controller"),
+		InfrastructureService: infrastructureService,
+		SubnetService:         subnetService,
+		VariablesService:      variablesService,
+		MetalSoftClient:       client,
+		ReconcileTimeout:      reconcileTimeout,
+		WatchFilterValue:      watchFilterValue,
 	}).SetupWithManager(ctx, mgr, controller.Options{MaxConcurrentReconciles: metalsoftClusterConcurrency}); err != nil {
 		return fmt.Errorf("setting up MetalsoftCluster controller: %w", err)
 	}
