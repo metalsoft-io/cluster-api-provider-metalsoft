@@ -69,6 +69,26 @@ func (s *ClusterScope) InfrastructureLabel() string {
 	return s.MetalsoftCluster.Spec.InfrastructureLabel
 }
 
+// VipSubnetLabel returns the current VIP subnet label.
+// func (s *ClusterScope) VipSubnetLabel() string {
+// 	return s.MetalsoftCluster.Spec.VipSubnetLabel
+// }
+
+// InfrastructureID returns the current infrastructure ID.
+func (s *ClusterScope) InfrastructureID() int {
+	return s.MetalsoftCluster.Spec.InfrastructureID
+}
+
+// SubnetID returns the current subnet ID.
+func (s *ClusterScope) SubnetID() int {
+	return s.MetalsoftCluster.Spec.Network.SubnetID
+}
+
+// SubnetSubdomain returns the current subnet subdomain.
+func (s *ClusterScope) SubnetSubdomain() string {
+	return s.MetalsoftCluster.Spec.Network.SubnetSubdomain
+}
+
 // ControlPlaneEndpoint returns the cluster control-plane endpoint.
 func (s *ClusterScope) ControlPlaneEndpoint() clusterv1.APIEndpoint {
 	endpoint := s.MetalsoftCluster.Spec.ControlPlaneEndpoint
@@ -84,6 +104,21 @@ func (s *ClusterScope) SetReady() {
 // SetControlPlaneEndpoint sets cluster control-plane endpoint.
 func (s *ClusterScope) SetControlPlaneEndpoint(endpoint clusterv1.APIEndpoint) {
 	s.MetalsoftCluster.Spec.ControlPlaneEndpoint = endpoint
+}
+
+// set infrastructure ID
+func (s *ClusterScope) SetInfrastructureID(infrastructureID int) {
+	s.MetalsoftCluster.Spec.InfrastructureID = infrastructureID
+}
+
+// set subnet ID
+func (s *ClusterScope) SetSubnetID(subnetID int) {
+	s.MetalsoftCluster.Spec.Network.SubnetID = subnetID
+}
+
+// set subnet subdomain
+func (s *ClusterScope) SetSubnetSubdomain(subnetSubdomain string) {
+	s.MetalsoftCluster.Spec.Network.SubnetSubdomain = subnetSubdomain
 }
 
 // PatchObject persists the cluster configuration and status.

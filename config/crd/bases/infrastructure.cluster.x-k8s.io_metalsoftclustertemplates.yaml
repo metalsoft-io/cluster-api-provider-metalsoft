@@ -86,6 +86,10 @@ spec:
                         description: DatacenterName represents the name of the datacenter
                           where the cluster is deployed.
                         type: string
+                      infrastructureID:
+                        description: InfrastructureID represents the ID used to identify
+                          the infrastructure. (set during setControlPlaneEndpoint)
+                        type: integer
                       infrastructureLabel:
                         description: InfrastructureLabel represents the label used
                           to identify the infrastructure.
@@ -101,6 +105,14 @@ spec:
                             description: NetworkProfileID represents the network profile
                               ID that can be applied to the network.
                             type: integer
+                          subnetID:
+                            description: SubnetID represents the subnet ID that is
+                              used for the subnet of control plane endpoint.
+                            type: integer
+                          subnetSubdomain:
+                            description: SubnetSubdomain represents the subnet subdomain
+                              that is used for the subnet of control plane endpoint.
+                            type: string
                           subnets:
                             description: Subnets configuration.
                             items:

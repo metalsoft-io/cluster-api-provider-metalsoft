@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	userEmailEnvVar   = "METALSOFT_USER_EMAIL"
-	apiKeyEnvVar      = "METALSOFT_API_KEY"
-	apiEndpointEnvVar = "METALSOFT_ENDPOINT"
-	// datacenterEnvVar     = "METALSOFT_DATACENTER"
+	userEmailEnvVar      = "METALSOFT_USER_EMAIL"
+	apiKeyEnvVar         = "METALSOFT_API_KEY"
+	apiEndpointEnvVar    = "METALSOFT_ENDPOINT"
+	datacenterEnvVar     = "METALSOFT_DATACENTER"
 	loggingEnabledEnvVar = "METALSOFT_LOGGING_ENABLED"
 
 	credentialsFileEnvVar = "METALSOFT_CREDENTIALS_FILE_PATH"
