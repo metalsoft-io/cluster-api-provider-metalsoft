@@ -109,11 +109,7 @@ spec:
                             description: SubnetID represents the subnet ID that is
                               used for the subnet of control plane endpoint.
                             type: integer
-                          subnetSubdomain:
-                            description: SubnetSubdomain represents the subnet subdomain
-                              that is used for the subnet of control plane endpoint.
-                            type: string
-                          subnets:
+                         subnets:
                             description: Subnets configuration.
                             items:
                               description: SubnetSpec configures an Metalsoft Subnet.

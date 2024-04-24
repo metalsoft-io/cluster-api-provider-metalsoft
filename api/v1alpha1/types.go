@@ -63,10 +63,6 @@ type NetworkSpec struct {
 	// +optional
 	SubnetID int `json:"subnetID,omitempty"`
 
-	// SubnetSubdomain represents the subnet subdomain that is used for the subnet of control plane endpoint.
-	// +optional
-	SubnetSubdomain string `json:"subnetSubdomain,omitempty"`
-
 	// Type is the type of the network to be used.
 	// +optional
 	// +kubebuilder:validation:Enum=wan;lan;san

@@ -42,7 +42,7 @@ import (
 	"github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft/scope"
 	"github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft/services"
 	"github.com/metalsoft-io/cluster-api-provider-metalsoft/util/reconciler"
-	metalcloud "github.com/metalsoft-io/metal-cloud-sdk-go/v2"
+	metalcloud "github.com/metalsoft-io/metal-cloud-sdk-go/v3"
 	"github.com/pkg/errors"
 )
 
@@ -140,8 +140,6 @@ func (es *MetalsoftClusterReconciler) getEndpoint(ctx context.Context, clusterSc
 	// vipSubnetLabel := clusterScope.VipSubnetLabel()
 	infrastructureID := clusterScope.InfrastructureID()
 	subnetId := clusterScope.SubnetID()
-	// TODO: Get rid of subetSubdomain and use humanReadable IP instead
-	subnetSubdomain := clusterScope.SubnetSubdomain()
 
 	if datacenterName == "" {
 		return "", errors.New("DatacenterName is required")
@@ -203,18 +201,22 @@ func (es *MetalsoftClusterReconciler) getEndpoint(ctx context.Context, clusterSc
 		clusterScope.SetSubnetID(subnet.SubnetID)
 	}
 
-	if subnet.SubnetSubdomain == "" {
-		log.Info("SubnetSubdomain not found")
-		return "", errors.New("subnetSubDomain not found")
+	if subnet.SubnetRangeStartHumanReadable == "" {
+		log.Info("SubnetRangeStartHumanReadable not found")
+		return "", errors.New("SubnetRangeStartHumanReadable not found")
 	}
 
 	if controlPlaneEndpoint.Host == "" {
-		// We are setting the variable kube_vip_address with the subnetSubdomain only once
-		clusterScope.SetSubnetSubdomain(subnet.SubnetSubdomain)
+		newEndpoint := v1beta1.APIEndpoint{
+			Host: subnet.SubnetRangeStartHumanReadable,
+		}
+
+		// We are setting the variable kube_vip_address with the subnet range start only once
+		clusterScope.SetControlPlaneEndpoint(newEndpoint)
 
 		variableName := "kube_vip_address"
 
-		variableValue := `{"value":" ` + subnetSubdomain + ` "}`
+		variableValue := `{"value":" ` + newEndpoint.Host + ` "}`
 		_, err = es.VariablesService.CreateVariable(variableName, variableValue)
 
 		if err != nil {
@@ -222,7 +224,7 @@ func (es *MetalsoftClusterReconciler) getEndpoint(ctx context.Context, clusterSc
 		}
 	}
 
-	return subnet.SubnetSubdomain, nil
+	return controlPlaneEndpoint.Host, nil
 }
 
 func generateRandomID() string {

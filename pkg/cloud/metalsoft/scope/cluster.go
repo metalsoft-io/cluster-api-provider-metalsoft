@@ -84,11 +84,6 @@ func (s *ClusterScope) SubnetID() int {
 	return s.MetalsoftCluster.Spec.Network.SubnetID
 }
 
-// SubnetSubdomain returns the current subnet subdomain.
-func (s *ClusterScope) SubnetSubdomain() string {
-	return s.MetalsoftCluster.Spec.Network.SubnetSubdomain
-}
-
 // ControlPlaneEndpoint returns the cluster control-plane endpoint.
 func (s *ClusterScope) ControlPlaneEndpoint() clusterv1.APIEndpoint {
 	endpoint := s.MetalsoftCluster.Spec.ControlPlaneEndpoint
@@ -114,11 +109,6 @@ func (s *ClusterScope) SetInfrastructureID(infrastructureID int) {
 // set subnet ID
 func (s *ClusterScope) SetSubnetID(subnetID int) {
 	s.MetalsoftCluster.Spec.Network.SubnetID = subnetID
-}
-
-// set subnet subdomain
-func (s *ClusterScope) SetSubnetSubdomain(subnetSubdomain string) {
-	s.MetalsoftCluster.Spec.Network.SubnetSubdomain = subnetSubdomain
 }
 
 // PatchObject persists the cluster configuration and status.
