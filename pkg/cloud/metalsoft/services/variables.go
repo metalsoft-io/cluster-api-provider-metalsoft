@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/metalsoft-io/cluster-api-provider-metalsoft/pkg/cloud/metalsoft"
-	metalcloud "github.com/metalsoft-io/metal-cloud-sdk-go/v2"
+	metalcloud "github.com/metalsoft-io/metal-cloud-sdk-go/v3"
 )
 
 type VariablesService struct {
